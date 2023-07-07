@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.css" rel="stylesheet">
+	<link href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.print.css" rel="stylesheet"
+		media="print">
+	<script src="https://momentjs.com/downloads/moment.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script type='text/javascript'
+		src='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js'></script>
+	<script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/gcal.min.js'></script>
+	    <!-- Bootstrap CSS and JS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<!-- CSS for FullCalendar -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css" rel="stylesheet" />
+	
+
+	<style>
+		fieldset {
+			display: none;
+		}
+
+		fieldset.show {
+			display: block;
+		}
+
+		select:focus,
+		input:focus {
+			-moz-box-shadow: none !important;
+			-webkit-box-shadow: none !important;
+			box-shadow: none !important;
+			outline-width: 0 !important;
+			font-weight: 400;
+		}
+
+		button:focus {
+			-moz-box-shadow: none !important;
+			-webkit-box-shadow: none !important;
+			box-shadow: none !important;
+			outline-width: 0;
+		}
+
+		.tabs {
+			margin: 2px 5px 0px 5px;
+			padding-bottom: 10px;
+			cursor: pointer;
+		}
+
+		a:hover {
+			text-decoration: none;
+
+		}
+
+		.box {
+			margin-bottom: 10px;
+			border-radius: 5px;
+			padding: 10px;
+		}
+
+		.line {
+			background-color: #CFD8DC;
+			height: 1px;
+			width: 100%;
+		}
+
+		@media screen and (max-width: 768px) {
+			.tabs h6 {
+				font-size: 12px;
+			}
+		}
+
+		.popup-overlay {
+			visibility: hidden;
+		}
+
+		.popup-content {
+			visibility: hidden;
+		}
+
+		.popup-overlay :active {
+			visibility: visible;
+		}
+
+		.popup-content:active {
+			visibility: visible;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div id="calendar"></div>
+	</div>
+	 <!-- Start popup dialog box -->
+	 <div id="event_entry_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"
+	 class="modal fade text-left">
+	 <div role="document" class="modal-dialog">
+		 <div class="modal-content">
+			 <div class="modal-header row d-flex justify-content-between mx-1 mx-sm-3 mb-0 pb-0 border-0">
+				 <div class="tabs" id="tab01">
+					 <h6 class="font-weight-bold">Event</h6>
+				 </div>
+				 <div class="tabs active" id="tab02">
+					 <h6 class="font">Task</h6>
+				 </div>
+			 </div>
+			 <div class="line"></div>
+			 <div class="modal-body p-0">
+				 <fieldset id="tab1">
+					 <div class="bg-light">
+						 <h5 class="text-center mb-4 mt-0 pt-4"> Add New Event</h5>
+						 <!-- /write event modal here -->
+						 <form>
+							 <div class="row">
+								 <div class="col-sm-6">
+									 <div class="form-group pb-0 px-3">
+										 <label for="task_name">Event name</label>
+										 <input type="text" name="event_name" id="event_name" class="form-control"
+											 placeholder="Enter your event name">
+									 </div>
+								 </div>
+								 <div class="col-sm-6">
+									 <div class="form-group pb-0 px-3">
+									   <label for="task_name">Event Description</label>
+										<textarea id="event_desc" name="event_desc" rows="1" 
+											  placeholder="Enter event desciption" class="form-control"></textarea>
+									 </div>
+								 </div>
+							 </div>
+							 <div class="row">
+								 <div class="col-sm-6">
+									 <div class="form-group pb-0 px-3">
+										 <label for="event_start_date">Event start date</label>
+										 <input type="datetime-local" name="event_start_date" id="event_start_date"
+											 class="form-control" placeholder="Event start date">
+									 </div>
+								 </div>
+								 <div class="col-sm-6">
+									 <div class="form-group pb-0 px-3">
+										 <label for="event_end_date">Event end date</label>
+										 <input type="datetime-local" name="event_end_date" id="event_end_date"
+											 class="form-control" placeholder="Event end date">
+									 </div>
+								 </div>
+							 </div>
+							 <div class="row">
+								 <div class="col-sm-6">
+									 <div class="form-group pb-0 px-3">
+										 <label for="reminder">Reminder</label>
+										 <select class="form-control" name="reminder" id="reminder">
+											 <option value="15">15 min. before</option>
+											 <option value="30">30 min. before</option>
+											 <option value="60">1 hr. before</option>
+										 </select>
+									 </div>
+								 </div>
+								 <div class="col-sm-6">
+									 <div class="form-group pb-0 px-3">
+										 <label for="guestEmail">Guest Email:</label>
+										 <input type="email" id="guestEmail" name="guestEmail" class="form-control"
+											 placeholder="Enter the guest Email">
+									 </div>
+								 </div>
+							 </div>                                                             
+							 <div class="form-group pb-0 px-3">
+								 <label for="location">Location:</label>
+								 <input type="text" id="location" name="location" class="form-control"
+									 placeholder="Enter your location">
+							 </div>
+
+							 <div class="modal-footer">
+								 <button type="button" class="btn btn-primary" id="save_event_btn">Save
+									 Event</button>
+								 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+							 </div>
+						 </form>
+					 </div>
+				 </fieldset>
+				 <fieldset class="show" id="tab2">
+					 <div class="bg-light">
+						 <h5 class="text-center mb-4 mt-0 pt-4"> Add New Task</h5>
+						 <form>
+							 <div class="row">
+								 <div class="col-sm-6">
+									 <div class="form-group pb-0 px-3">
+										 <label for="task_name">Task name</label>
+										 <input type="text" name="task_name" id="task_name" class="form-control"
+											 placeholder="Enter your Task name">
+									 </div>
+								 </div>
+								 <div class="col-sm-6">
+									 <div class="form-group pb-0 px-3">
+										 <label for="task_desc">Task Description</label>
+										 <textarea id="task_desc" name="task_desc" rows="1" 
+										 placeholder="Enter task desciption" class="form-control"></textarea>
+
+									 </div>
+								 </div>
+							 </div>
+							 <div class="row">
+								 <div class="col-sm-6">
+									 <div class="form-group pb-0 px-3">
+										 <label for="task_start_date">Task start date</label>
+										 <input type="datetime-local" name="task_start_date" id="task_start_date"
+											 class="form-control" placeholder="Task start date">
+									 </div>
+								 </div>
+								 <div class="col-sm-6">
+									 <div class="form-group pb-0 px-3">
+										 <label for="task_end_date">Task end date</label>
+										 <input type="datetime-local" name="task_end_date" id="task_end_date"
+											 class="form-control" placeholder="Task end date">
+									 </div>
+								 </div>
+							 </div>
+							 <div class="row">
+								 <div class="col-sm-6">
+									 <div class="form-group pb-0 px-3">
+										 <label for="task_reminder">Reminder</label>
+										 <select class="form-control" name="task_reminder" id="task_reminder">
+											 <option value="15">1 hr. before</option>
+											 <option value="30">2 hr. before</option>
+											 <option value="60">3 hr. before</option>
+										 </select>
+									 </div>
+								 </div>
+								 <div class="col-sm-6">
+									 <div class="form-group pb-0 px-3">
+										 <label for="task_guestEmail"> Add Guest</label>
+										 <input type="email" id="task_guestEmail" name="task_guestEmail" class="form-control"
+											 placeholder="Enter guestEmail"  multiple>
+									 </div>
+								 </div>
+							 </div>
+							 <div class="form-group pb-0 px-3">
+								 <label for="task_location">Location:</label>
+								 <input type="text" id="task_location" name="task_location" class="form-control"
+									 placeholder="Enter your location">
+							 </div>
+							 <div class="modal-footer">
+								 <button type="button" class="btn btn-primary" id="save_task_btn">Save
+									 Task</button>
+								 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							 </div>
+						 </form>
+					 </div>
+				 </fieldset>
+			 </div>
+		 </div>
+	 </div>
+ </div>
+
+ <!-- End popup dialog box -->
+
+ <!-- Event Details Modal -->
+ <div class="modal fade" id="event_details_modal" tabindex="-1" role="dialog"
+	 aria-labelledby="eventDetailsModalLabel" aria-hidden="true">
+	 <div class="modal-dialog" role="document">
+		 <div class="modal-content">
+			 <div class="modal-header">
+				 <h5 class="modal-title" id="eventDetailsModalLabel">Event Details</h5>
+				 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					 <span aria-hidden="true">&times;</span>
+				 </button>
+			 </div>
+			 <form>
+				 <div class="row">
+					 <div class="col-sm-6">
+						 <div class="form-group pb-0 px-3">
+							 <label for="task_name">Event name</label>
+							 <input type="text" name="update_event_name" id="update_event_name" class="form-control"
+								 placeholder="Enter your event name">
+						 </div>
+					 </div>
+					 <div class="col-sm-6">
+						 <div class="form-group pb-0 px-3">
+							 <label for="task_name">Event Description</label>
+							 <textarea id="update_event_desc" name="update_event_desc" rows="1" 
+							 placeholder="Enter event desciption" class="form-control"></textarea>
+						 </div>
+					 </div>
+				 </div>
+				 <div class="row">
+					 <div class="col-sm-6">
+						 <div class="form-group pb-0 px-3">
+							 <label for="event_start_date">Event start date</label>
+							 <input type="datetime-local" name="update_event_start_date" id="update_event_start_date"
+								 class="form-control" placeholder="Event start date">
+						 </div>
+					 </div>
+					 <div class="col-sm-6">
+						 <div class="form-group pb-0 px-3">
+							 <label for="update_event_end_date">Event end date</label>
+							 <input type="datetime-local" name="update_event_end_date" id="update_event_end_date"
+								 class="form-control" placeholder="Event end date">
+						 </div>
+					 </div>
+				 </div>
+				 <div class="row">
+					 <div class="col-sm-6">
+						 <div class="form-group pb-0 px-3">
+							 <label for="reminder">Reminder</label>
+							 <select class="form-control" name="update_event_reminder" id="update_event_reminder">
+								 <option value="15">15 min. before</option>
+								 <option value="30">30 min. before</option>
+								 <option value="60">1 hr. before</option>
+							 </select>
+						 </div>
+					 </div>
+					 <div class="col-sm-6">
+						 <div class="form-group pb-0 px-3">
+							 <label for="guestEmail">Guest Email:</label>
+							 <input type="email" id="update_event_guestEmail" name="update_event_guestEmail"
+								 class="form-control" placeholder="Enter guestEmail">
+						 </div>
+					 </div>
+				 </div>                   
+				 <div class="form-group pb-0 px-3">
+					 <label for="location">Location:</label>
+					 <input type="text" id="update_event_location" name="update_event_location" class="form-control"
+						 placeholder="Enter your location">
+				 </div>
+			 </form>
+			 <div class="modal-footer">
+				 <button type="button" class="btn btn-primary" id="update_event_btn">update</button>
+				 <button type="button" class="btn btn-danger" id="delete_event_btn">Delete</button>
+				 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			 </div>
+		 </div>
+	 </div>
+ </div>
+
+
+ <!-- Task Details Modal -->
+ <div class="modal fade" id="task_details_modal" tabindex="-1" role="dialog" aria-labelledby="taskDetailsModalLabel"
+	 aria-hidden="true">
+	 <div class="modal-dialog" role="document">
+		 <div class="modal-content">
+			 <div class="modal-header">
+				 <h5 class="modal-title" id="taskDetailsModalLabel">Task Details</h5>
+				 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					 <span aria-hidden="true">&times;</span>
+				 </button>
+			 </div>
+			 <form>
+				 <div class="row">
+					 <div class="col-sm-6">
+						 <div class="form-group pb-0 px-3">
+							 <label for="task_name">Task name</label>
+							 <input type="text" name="update_task_name" id="update_task_name" class="form-control"
+								 placeholder="Enter your Task name">
+						 </div>
+					 </div>
+					 <div class="col-sm-6">
+						 <div class="form-group pb-0 px-3">
+							 <label for="task_desc">Task Description</label>
+							 <textarea id="update_task_desc" name="update_task_desc" rows="1"
+							   placeholder="Enter event desciption" class="form-control"></textarea>
+						 </div>
+					 </div>
+				 </div> 
+				 <div class="row">
+					 <div class="col-sm-6">
+						 <div class="form-group pb-0 px-3">
+							 <label for="task_start_date">Task start date</label>
+							 <input type="datetime-local" name="update_task_start_date" id="update_task_start_date"
+								 class="form-control" placeholder="Task start date">
+						 </div>
+					 </div>
+					 <div class="col-sm-6">
+						 <div class="form-group pb-0 px-3">
+							 <label for="task_end_date">Task end date</label>
+							 <input type="datetime-local" name="task_end_date" id="update_task_end_date"
+								 class="form-control" placeholder="Task end date">
+						 </div>
+					 </div>
+				 </div>
+				 <div class="row">
+					 <div class="col-sm-6">
+						 <div class="form-group pb-0 px-3">
+							 <label for="update_task_reminder">Reminder</label>
+							 <select class="form-control" name="update_task_reminder" id="update_task_reminder">
+								 <option value="15">1 hr. before</option>
+								 <option value="30">2 hr. before</option>
+								 <option value="60">3 hr. before</option>
+							 </select>
+						 </div>
+					 </div>
+					 <div class="col-sm-6">
+						 <div class="form-group pb-0 px-3">
+							 <label for="task_guestEmail">Guest Email:</label>
+							 <input type="email" id="update_task_guestEmail" name="update_task_guestEmail" class="form-control"
+								 placeholder="Enter the guestEmail">
+						 </div>
+					 </div>
+				 </div>                   
+				 <div class="form-group pb-0 px-3">
+					 <label for="task_location">Location:</label>
+					 <input type="text" id="update_task_location" name="update_task_location" class="form-control"
+						 placeholder="Enter the location">
+				 </div>
+			 </form>
+			 <div class="modal-footer">
+				 <button type="button" class="btn btn-primary" id="update_task_btn">update</button>
+				 <button type="button" class="btn btn-danger" id="delete_task_btn">Delete</button>
+				 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			 </div>
+		 </div>
+	 </div>
+ </div>
+
+	<script type='text/javascript'>
+		// posting this because the following is a poor example https://fullcalendar.io/docs/google_calendar/
+		// This was used to wrap google calendar in squarespace and make it look tremendously better
+		$(document).ready(function () {
+
+			$('#calendar').fullCalendar({
+				googleCalendarApiKey: 'AIzaSyAWxjLbS7zpmT_eH67wjCekSjuFdZI8nN8',
+				eventSources: [
+					'events.php',
+
+					{
+						googleCalendarId: 'anupdhavan@gmail.com'
+					}],
+					selectable: true,
+                // selectOverlap: false,
+                header: {
+                    left: 'prev,next today ',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay,listYear'
+                },
+
+                select: function (start, end) {
+
+                    var check = moment(start).format('YYYY/MM/DD');
+                    var today = moment().format('YYYY/MM/DD');
+                    if (check < today) {
+                        alert("You cannot create event/task for past days.");
+                    }
+                    else {
+                        $('#location').val('');
+                        $('#guestEmail').val('');
+                        $('#remindar').val('');
+                        $('#event_desc').val('');
+                        $('#event_start_date').val(moment(start).format('YYYY-MM-DD')); // Set the start date in the modal
+                        $('#event_end_date').val(moment(end).format('YYYY-MM-DD'));
+                        $('#event_name').val('');
+                        // Set the end date in the modal
+                        $('#event_entry_modal').modal('show'); // Show the modal for event entry
+                    }
+                    $('#tab01').removeClass('active');
+                    $('#tab1').removeClass('show');
+                    $('#tab02').addClass('active');
+                    $('#tab2').addClass('show');
+                    // Event handler for clicking on the "Task" tab
+                    $('#tab02').click(function () {
+                        $('#tab01').removeClass('active');
+                        $('#tab1').removeClass('show');
+                        $('#tab02').addClass('active');
+                        $('#tab2').addClass('show');
+                    });
+
+                    // Event handler for clicking on the "Event" tab
+                    $('#tab01').click(function () {
+                        $('#tab02').removeClass('active');
+                        $('#tab2').removeClass('show');
+                        $('#tab01').addClass('active');
+                        $('#tab1').addClass('show');
+                    });
+
+                },
+                editable: true,
+                eventClick: function (event) {
+                    // Display the event details modal
+                    // alert(event.description);
+                    var eventTypes = "Event";
+                    if (event.type.indexOf(eventTypes) >= 0 || eventTypes.indexOf(event.type) >= 0) {
+                        // alert("type is event")
+                        $('#event_details_modal').modal('show');
+                        // Set the event details in the modal
+                        $('#update_event_name').attr('value', '');
+                        $('#update_event_name').val(event.title);
+                        $('#update_event_end_date').attr('value', '');
+                        // alert(event.start);
+                        // alert(event.end);
+                        var date = new Date(event.start);
+                        var formattedDateTimes = date.toISOString().slice(0, 19).replace('T', ' ');
+                        $('#update_event_start_date').attr('value', '');
+                        $('#update_event_start_date').attr('value', formattedDateTimes);                    
+                        $('#update_event_desc').attr('value', '');
+                        // alert(event.description);
+                        $('#update_event_desc').val(event.description);
+                        $('#update_event_reminder').attr('value', '');
+                        $('#update_event_reminder').val(event.remindar);
+                        $('#update_event_guestEmail').attr('value', '');
+                        $('#update_event_guestEmail').val(event.guetemail);
+                        $('#update_event_location').attr('value', '');
+                        $('#update_event_location').val(event.location);
+
+                        if (event.end != null) {
+                            var event_endDate = new Date(event.end);
+                            //Adding +1 to months
+                            var endDateTime = event_endDate.toISOString().slice(0, 19).replace('T', ' ');
+                            // var endDateTime = event_endDate.getFullYear() + "-" + ("0" + (event_endDate.getMonth() + 1)).slice(-2) + "-" + ("0" + event_startDate.getDate()).slice(-2) + "T" + ("0" + event_startDate.getHours()).slice(-2) + ":" + ("0" + event_startDate.getMinutes()).slice(-2) + ":" + ("0" + event_endDate.getSeconds()).slice(-2) + ' GMT';
+                            // alert("endDateTime "+ formattedDateTime);
+                            $('#update_event_end_date').attr('value', '');
+                            $('#update_event_end_date').attr('value', endDateTime);
+                        }
+
+                        $("#delete_event_btn").unbind().click(function () {
+                            var eventId = event.id;
+                            // alert(eventId); // Assuming `event` is defined and accessible
+                            deleteEvent(eventId); // Call the deleteEvent function with the event ID
+
+                            $('#event_details_modal').modal('hide'); // Hide the event details modal
+                        });
+
+                        // Attach click event handlers for the delete and update buttons
+                        $('#update_event_btn').unbind().click(function () {
+
+                            var updateeventName = $('#update_event_name').val(); // Get the event name from the input field
+                            var updateeventStartDate = $('#update_event_start_date').val(); // Get the event start date from the input field
+                            var updateeventEndDate = $('#update_event_end_date').val();
+                            var updateeventdescription = $('#update_event_desc').val();
+                            var updateeventreminder = $('#update_event_reminder').val();
+                            var updateeventguestemail = $('#update_event_guestEmail').val();
+                            var updateeventlocation = $('#update_event_location').val();
+
+                            updateEvent(event.id, updateeventName, updateeventStartDate, updateeventEndDate, updateeventdescription, updateeventreminder, updateeventguestemail, updateeventlocation); // Call the updateEvent function with the event ID
+                            $('#event_details_modal').modal('hide'); // Hide the event details modal
+                        });
+                    }
+                    // for task detail modal
+                    else {
+                        var eventTypes = "Task";
+                        // alert("type is task")
+                        $('#task_details_modal').modal('show');
+                        // alert(event.type);
+                        // Set the event details in the modal
+                        $('#update_task_name').attr('value', '');
+                        $('#update_task_name').val(event.title);
+                        $('#update_task_end_date').attr('value', '');
+                        var date = new Date(event.start);
+                        var formattedDateTimes = date.toISOString().slice(0, 19).replace('T', ' ');
+                        $('#update_task_start_date').attr('value', '');
+                        $('#update_task_start_date').attr('value', formattedDateTimes);
+                        $('#update_task_desc').val(event.description);
+                        $('#update_task_reminder').attr('value', '');
+                        $('#update_task_reminder').val(event.remindar);
+                        $('#update_task_gustEmail').attr('value', '');
+                        $('#update_task_gustEmail').val(event.guestemail);
+                        $('#update_task_location').attr('value', '');
+                        $('#update_task_location').val(event.location);
+
+
+
+
+                        if (event.end != null) {
+                            var event_endDate = new Date(event.end);
+                            //Adding +1 to months
+                            var endDateTime = event_endDate.toISOString().slice(0, 19).replace('T', ' ');
+                            // var endDateTime = event_endDate.getFullYear() + "-" + ("0" + (event_endDate.getMonth() + 1)).slice(-2) + "-" + ("0" + event_startDate.getDate()).slice(-2) + "T" + ("0" + event_startDate.getHours()).slice(-2) + ":" + ("0" + event_startDate.getMinutes()).slice(-2) + ":" + ("0" + event_endDate.getSeconds()).slice(-2) + ' GMT';
+                            // alert("endDateTime "+ formattedDateTime);
+                            $('#update_task_end_date').attr('value', '');
+                            $('#update_task_end_date').attr('value', endDateTime);
+                           
+                        }
+
+                        $("#delete_task_btn").unbind().click(function () {
+                            var taskId = event.id;
+                            // alert(eventId); // Assuming `event` is defined and accessible
+                            deleteTask(taskId); // Call the deleteEvent function with the event ID
+
+                            $('#task_details_modal').modal('hide'); // Hide the event details modal
+                        });
+
+                        // Attach click task handlers for the  update buttons
+
+                        $('#update_task_btn').unbind().click(function () {
+
+                            var updatetaskName = $('#update_task_name').val(); // Get the event name from the input field
+                            var updatetaskStartDate = $('#update_event_start_date').val(); // Get the event start date from the input field
+                            var updatetaskEndDate = $('#update_event_end_date').val();
+                            var updatetaskdescription = $('#update_task_desc').val();
+                            var updatetaskreminder = $('#update_task_reminder').val();
+                            var updatetaskguestemail = $('#update_task_guestEmail').val();
+                            var updatetasklocation = $('#update_task_location').val();
+
+                            updateTask(event.id, updatetaskName, updatetaskStartDate, updatetaskEndDate,updatetaskdescription,updatetaskreminder,updatetaskguestemail,updatetasklocation); // Call the updateEvent function with the event ID
+                            $('#event_details_modal').modal('hide'); // Hide the event details modal
+                        });
+                    }
+                },
+                
+			});
+			//  save_click btn code here till last
+			$('#save_event_btn').on('click', function () {
+                saveEvent();
+            });
+
+            function saveEvent() {
+                var eventtype = "Event";
+                var eventName = $('#event_name').val(); // Get the event name from the input field
+                var eventStartDate = $('#event_start_date').val(); // Get the event start date from the input field
+                var eventEndDate = $('#event_end_date').val(); // Get the event end date from the input field
+                var eventdesc = $('#event_desc').val();
+                var reminder = $('#reminder').val();
+                var guestEmail = $('#guestEmail').val();
+                var location = $('#location').val();
+                
+
+                // Send the event data to the server-side script using AJAX
+                $.ajax({
+                    url: 'save_event.php', // Path to the server-side script that saves the event
+                    type: 'POST',
+                    data: {
+                        type: eventtype,
+                        title: eventName,
+                        start: eventStartDate,
+                        end: eventEndDate,
+                        description: eventdesc,
+                        reminder: reminder,
+                        guestEmail: guestEmail,
+                        location: location
+
+
+                    },
+                    success: function (response) {
+                        // Refresh the calendar after successfully saving the event
+                        $('#calendar').fullCalendar('refetchEvents');
+                        $('#event_entry_modal').modal('hide'); // Hide the modal after saving the event
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Error saving event: ' + error); // Display an error message if the event couldn't be saved
+                    }
+                });
+            }
+            function updateEvent( eventid, updateeventName, updateeventStartDate, 
+            updateeventEndDate, updateeventdescription, updateeventreminder, 
+            updateeventguestemail, updateeventlocation) {
+               
+                // Send the updated event data to the server-side script using AJAX
+                $.ajax({
+                    url: 'update_event.php', // Path to the server-side script that updates the event
+                    type: 'POST',
+                    data: {
+                        
+                        id: eventid,
+                        type: "Event",
+                        title: updateeventName,
+                        start: updateeventStartDate,
+                        end: updateeventEndDate,
+                        desciption: updateeventdescription,
+                        reminder: updateeventreminder,
+                        guestEmail: updateeventguestemail,
+                        location: updateeventlocation
+
+                    },
+                    success: function (response) {
+                        // Refresh the calendar after successfully updating the event
+
+                        $('#calendar').fullCalendar('refetchEvents');
+
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Error updating event: ' + error); // Display an error message if the event couldn't be updated
+                    }
+                });
+            }
+
+            //$('#delete_event_btn').on('click', function () 
+            function deleteEvent(eventId) {
+                if (confirm("are you sure you want to delete?")) {
+                    // var eventId = eventId; // Assuming `event` is defined and accessible
+                    $.ajax({
+                        url: 'delete_event.php',
+                        type: 'POST',
+                        data: {
+                            id: eventId
+                        },
+                        success: function (response) {
+                            $('#event_details_modal').modal('hide');
+                            $('#calendar').fullCalendar('refetchEvents');
+                        },
+                        error: function (xhr, status, error) {
+                            alert('Error deleting event: ' + error + eventId);
+                        }
+                    });
+                };
+            };
+
+            // for task saving
+            $('#save_task_btn').unbind().click(function () {
+                saveTask();
+            });
+
+            function saveTask() {
+                var tasktype = "Task";
+                var taskName = $('#task_name').val(); // Get the event name from the input field
+                var taskStartDate = $('#task_start_date').val(); // Get the event start date from the input field
+                var taskEndDate = $('#task_end_date').val(); // Get the event end date from the input field
+                var taskdesc = $('#task_desc').val();
+                var reminder = $('#reminder').val();
+                var guestEmail = $('#task_guestEmail').val();
+                var location = $('#task_location').val();
+
+                // Send the event data to the server-side script using AJAX
+                $.ajax({
+                    url: 'save_task.php', // Path to the server-side script that saves the event
+                    type: 'POST',
+                    data: {
+                        type: tasktype,
+                        title: taskName,
+                        start: taskStartDate,
+                        end: taskEndDate,
+                        desciption: taskdesc,
+                        reminder: reminder,
+                        guestEmail: guestEmail,
+                        location: location,
+
+                    },
+                    success: function (response) {
+                        // Refresh the calendar after successfully saving the event
+                        $('#calendar').fullCalendar('refetchEvents');
+                        $('#event_entry_modal').modal('hide'); // Hide the modal after saving the event
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Error saving event: ' + error); // Display an error message if the event couldn't be saved
+                    }
+                });
+            }
+
+
+
+
+            //  for task update and delete function
+            function deleteTask(eventId) {
+                if (confirm("are you sure you want to delete?")) {
+                    // var eventId = eventId; // Assuming `event` is defined and accessible
+                    $.ajax({
+                        url: 'delete_event.php',
+                        type: 'POST',
+                        data: {
+                            id: eventId
+                        },
+                        success: function (response) {
+                            $('#event_details_modal').modal('hide');
+                            $('#calendar').fullCalendar('refetchEvents');
+                        },
+                        error: function (xhr, status, error) {
+                            alert('Error deleting event: ' + error + eventId);
+                        }
+                    });
+                };
+            };
+
+
+            function updateTask(eventId, newEventName, newStartDate, newEndDate,taskdesc,reminder,guestEmail,location) {
+                // Send the updated event data to the server-side script using AJAX
+                $.ajax({
+                    url: 'update_task.php', // Path to the server-side script that updates the event
+                    type: 'POST',
+                    data: {
+                        type:"Task",
+                        id: eventId,
+                        title: newEventName,
+                        start: newStartDate,
+                        end: newEndDate,
+                        desciption: taskdesc,
+                        reminder: reminder,
+                        guestEmail: guestEmail,
+                        location: location
+
+                    },
+                    success: function (response) {
+                        // Refresh the calendar after successfully updating the event
+
+                        $('#calendar').fullCalendar('refetchEvents');
+
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Error updating event: ' + error); // Display an error message if the event couldn't be updated
+                    }
+                });
+            }
+
+        });
+        //    for default value to start date and end date 
+
+        $('#event_entry_modal').on('show.bs.modal', function (event) {
+            var defaultDate = moment().format('YYYY-MM-DDTHH:mm');
+            var modal = $(this);
+            modal.find('#event_start_date').val(defaultDate);
+            modal.find('#event_end_date').val(defaultDate);
+        });
+
+	</script>
+</body>
+
+</html>
